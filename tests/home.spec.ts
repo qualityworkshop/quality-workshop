@@ -20,3 +20,15 @@ test(
             { exact: true })).toBeVisible();
     }
 );
+
+test(
+    'SauceDemo user can add a product to the cart', async ({page }) => {await page.goto('/');
+
+        await login(page, 'standard_user', 'secret_sauce');
+        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+        await page.locator('.shopping_cart_link').click();
+        await expect(page.locator('.cart_list')).toBeVisible
+        await expect (page.locator('.cart_item')).toHaveCount(1);
+        await expect(page.locator('.cart_item [data-test="inventory-item-name"]')).toHaveText('Sauce Labs Backpack');
+    });
