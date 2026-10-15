@@ -62,3 +62,17 @@ test(
         await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!');
 }
 );
+
+test(
+    'SauceDemo requires first name during checkout', async ({page }) => {await page.goto('/');
+        await login(page, 'standard_user', 'secret_sauce');
+        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        await page.locator('.shopping_cart_link').click();
+        await page.locator('[data-test="checkout"]').click();
+        await expect(page).toHaveURL(/.*checkout-step-one.html/);
+        await page.locator('[data-test="lastName"]').fill('Mustermann');
+        await page.locator('[data-test="postalCode"]').fill('12345');
+        await page.locator('[data-test="continue"]').click();
+        await expect(page.getByText('Error: First Name is required', { exact: true })).toBeVisible();
+    }
+);
