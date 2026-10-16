@@ -31,8 +31,8 @@ test(
         const inventoryPage = new InventoryPage(page);
         await inventoryPage.addBackpacktoCart();
         await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-        await page.locator('.shopping_cart_link').click();
-        await expect(page.locator('.cart_list')).toBeVisible
+        await inventoryPage.openCart();
+        await expect(page.locator('.cart_list')).toBeVisible();
         await expect (page.locator('.cart_item')).toHaveCount(1);
         await expect(page.locator('.cart_item [data-test="inventory-item-name"]')).toHaveText('Sauce Labs Backpack');
     }
@@ -46,7 +46,7 @@ test(
         await inventoryPage.addBackpacktoCart();
         await inventoryPage.removeBackpackFromCart();
         await expect(page.locator('.shopping_cart_badge')).toHaveCount(0);
-        await page.locator('.shopping_cart_link').click();
+        await inventoryPage.openCart();
         await expect(page.locator('.cart_item')).toHaveCount(0);
     }
 );
