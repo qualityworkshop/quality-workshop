@@ -2,6 +2,7 @@ import {test, expect} from '@playwright/test';
 import {LoginPage} from '../pages/LoginPage';
 import {InventoryPage} from '../pages/InventoryPage';
 import {CheckoutPage} from '../pages/CheckoutPage';
+import {CartPage} from '../pages/CartPage';
 
 test(
     'SauceDemo user can log in successfully', async ({ page}) => {await page.goto('/');
@@ -57,14 +58,15 @@ test(
         const inventoryPage = new InventoryPage(page);
         await inventoryPage.addBackpacktoCart();
         await inventoryPage.openCart();
-        await page.locator('[data-test="checkout"]').click();
+        const cartPage = new CartPage(page);
+        await cartPage.startCheckout();
         await expect(page).toHaveURL(/.*checkout-step-one.html/);
         const checkoutPage = new CheckoutPage(page);
         await checkoutPage.fillCustomerInformation('Max', 'Mustermann', '12345');
-        await page.locator('[data-test="continue"]').click();
+        await checkoutPage.continueCheckout();
         await expect(page).toHaveURL(/.*checkout-step-two.html/);
         await expect(page.locator('.cart_item [data-test="inventory-item-name"]')).toHaveText('Sauce Labs Backpack');
-        await page.locator('[data-test="finish"]').click();
+        await checkoutPage.finishCheckout();
         await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!');
 }
 );
@@ -73,13 +75,15 @@ test(
     'SauceDemo requires first name during checkout', async ({page }) => {await page.goto('/');
         const loginPage = new LoginPage(page);
         await loginPage.login('standard_user', 'secret_sauce');
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-        await page.locator('.shopping_cart_link').click();
-        await page.locator('[data-test="checkout"]').click();
+        const inventoryPage = new InventoryPage(page);
+        await inventoryPage.addBackpacktoCart();
+        await inventoryPage.openCart();
+        const cartPage = new CartPage(page);
+        await cartPage.startCheckout();
         await expect(page).toHaveURL(/.*checkout-step-one.html/);
-        await page.locator('[data-test="lastName"]').fill('Mustermann');
-        await page.locator('[data-test="postalCode"]').fill('12345');
-        await page.locator('[data-test="continue"]').click();
+        const checkoutPage = new CheckoutPage(page);
+        await checkoutPage.fillCustomerInformationWithoutFirstName('Mustermann', '12345');
+        await checkoutPage.continueCheckout();
         await expect(page.getByText('Error: First Name is required', { exact: true })).toBeVisible();
     }
 );
