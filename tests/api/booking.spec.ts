@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 
 test('GET booking IDs returns HTTP 200', async ({request}) => {
-    const response = await request.get('https://restful-booker.herokuapp.com/booking');
+    const response = await request.get('/booking');
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect(Array.isArray(body)).toBe(true);
@@ -11,12 +11,12 @@ test('GET booking IDs returns HTTP 200', async ({request}) => {
 });
 
 test('Get booking by ID returns booking details', async ({request}) => {
-    const listResponse = await request.get('https://restful-booker.herokuapp.com/booking');
+    const listResponse = await request.get('/booking');
     expect(listResponse.status()).toBe(200);
     const bookings = await listResponse.json();
     expect(bookings.length).toBeGreaterThan(0);
     const bookingId = bookings[0].bookingid;
-    const response = await request.get(`https://restful-booker.herokuapp.com/booking/${bookingId}`);
+    const response = await request.get(`/booking/${bookingId}`);
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect(body).toHaveProperty('firstname');
@@ -37,7 +37,7 @@ test('POST creates a new booking', async ({request}) => {
         },
         additionalneeds: 'Breakfast'
     };
-    const response = await request.post('https://restful-booker.herokuapp.com/booking', {
+    const response = await request.post('/booking', {
         data: bookingData,
     });
     expect(response.status()).toBe(200);
@@ -47,14 +47,14 @@ test('POST creates a new booking', async ({request}) => {
     expect(body.booking).toEqual(bookingData);
     
     const bookingId = body.bookingid;
-    const getResponse = await request.get(`https://restful-booker.herokuapp.com/booking/${bookingId}`);
+    const getResponse = await request.get(`/booking/${bookingId}`);
     expect(getResponse.status()).toBe(200);
     const getBody = await getResponse.json();
     expect(getBody).toEqual(bookingData);
 });
 
 test('POST auth returns a token', async ({request}) => {
-    const response = await request.post('https://restful-booker.herokuapp.com/auth', {
+    const response = await request.post('/auth', {
         data: {
             username: 'admin',
             password: 'password123'
@@ -79,7 +79,7 @@ test('PUT updates an existing booking', async ({request}) => {
         additionalneeds: 'Breakfast'
     };
    //1. Eigene Buchugung erstellen
-   const createResponse = await request.post('https://restful-booker.herokuapp.com/booking', {
+   const createResponse = await request.post('/booking', {
         data: bookingData,
     });
     expect(createResponse.status()).toBe(200);
@@ -87,7 +87,7 @@ test('PUT updates an existing booking', async ({request}) => {
     const bookingId = booking.bookingid;
 
     //2. Authentifizierung
-    const authResponse = await request.post('https://restful-booker.herokuapp.com/auth', {
+    const authResponse = await request.post('/auth', {
         data: {
             username: 'admin',
             password: 'password123'
@@ -106,7 +106,7 @@ test('PUT updates an existing booking', async ({request}) => {
         totalprice: 200,   
     };
 
-    const updateResponse = await request.put(`https://restful-booker.herokuapp.com/booking/${bookingId}`, {
+    const updateResponse = await request.put(`/booking/${bookingId}`, {
         headers: {
             Cookie: `token=${token}`,
         },
@@ -117,7 +117,7 @@ test('PUT updates an existing booking', async ({request}) => {
     expect(updateResponse.status()).toBe(200);
 
     //4. Aktualisierte Buchung erneut abrufen
-    const getResponse = await request.get(`https://restful-booker.herokuapp.com/booking/${bookingId}`);
+    const getResponse = await request.get(`/booking/${bookingId}`);
     expect(getResponse.status()).toBe(200);
     const savedBooking = await getResponse.json();
     expect(savedBooking).toEqual(updatedBooking);
@@ -137,7 +137,7 @@ test('PUT without authentication is rejected', async ({request}) => {
     };
 
     //eigene Buchung erstellen
-    const createResponse = await request.post('https://restful-booker.herokuapp.com/booking', {
+    const createResponse = await request.post('/booking', {
         data: bookingData,
     });
     expect(createResponse.status()).toBe(200);
@@ -145,7 +145,7 @@ test('PUT without authentication is rejected', async ({request}) => {
     const bookingId = booking.bookingid;
 
     //Aktualisierung ohne Token versuchen
-    const response = await request.put(`https://restful-booker.herokuapp.com/booking/${bookingId}`, {
+    const response = await request.put(`/booking/${bookingId}`, {
         data: {
             ...bookingData,
             firstname: 'Anna',
@@ -169,7 +169,7 @@ test('DELETE removes an existing booking', async ({request}) => {
     };
 
     //1. Buchung erstellen
-    const createResponse = await request.post('https://restful-booker.herokuapp.com/booking', {
+    const createResponse = await request.post('/booking', {
         data: bookingData,
     });
 
@@ -178,7 +178,7 @@ test('DELETE removes an existing booking', async ({request}) => {
     const bookingId = booking.bookingid;
 
     //2. Token anfordern
-    const authResponse = await request.post('https://restful-booker.herokuapp.com/auth', {
+    const authResponse = await request.post('/auth', {
         data: {
             username: 'admin',
             password: 'password123'
@@ -193,7 +193,7 @@ test('DELETE removes an existing booking', async ({request}) => {
     expect(token.length).toBeGreaterThan(0);
 
     //3. Buchung löschen
-    const deleteResponse = await request.delete(`https://restful-booker.herokuapp.com/booking/${bookingId}`, {
+    const deleteResponse = await request.delete(`/booking/${bookingId}`, {
         headers: {
             Cookie: `token=${token}`,
         },
@@ -202,7 +202,7 @@ test('DELETE removes an existing booking', async ({request}) => {
     expect(deleteResponse.status()).toBe(201);
 
     //4. Überprüfen, dass die Buchung gelöscht wurde
-    const getResponse = await request.get(`https://restful-booker.herokuapp.com/booking/${bookingId}`);
+    const getResponse = await request.get(`/booking/${bookingId}`);
     expect(getResponse.status()).toBe(404);
 }
 );
